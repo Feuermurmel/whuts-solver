@@ -42,6 +42,8 @@ Trying to solve unfolding 3 ...
 [...]
 ```
 
+Each solution consists of a unit cell dimension and a number of copies of the unfolding, rotated and translated in space. Each copy is represented by a list of coordinates of the individual cubes. The solution can be used to tile space by arranging copying it along each axis with a distance given by the unit cell dimensions.
+
 A maximum number of copies of the unfolding to use can be specified, this may lead not solution being found for some unfoldings:
 
 ```
