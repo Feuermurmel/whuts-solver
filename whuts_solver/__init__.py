@@ -20,9 +20,27 @@ def parse_args():
     parser.add_argument(
         '--max-copies',
         type=int,
-        default=8,
+        default=12,
         help='Maximum number of copies of the unfolding to use to try to '
-             'build a unit cell.')
+             'build a unit cell. Defaults to a value that allows a tiling to '
+             'be found for all unfoldings.')
+
+    parser.add_argument(
+        '--cube',
+        dest='n',
+        action='store_const',
+        default=3,
+        const=2,
+        help='Find tilings of the unfoldings of the 3-cube instead of the '
+             'hypercube (4-cube).')
+
+    parser.add_argument(
+        '--square',
+        dest='n',
+        action='store_const',
+        const=1,
+        help='Find tilings of the unfoldings of the square (2-cube) instead '
+             'of the hypercube (4-cube). This is mostly a joke. :)')
 
     return parser.parse_args()
 

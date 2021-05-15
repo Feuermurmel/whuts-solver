@@ -8,8 +8,13 @@ import exact_cover
 
 
 @functools.lru_cache(None)
-def get_unfoldings():
-    with pkg_resources.resource_stream(__name__, 'cube-unfoldings.txt') as file:
+def get_unfoldings(n):
+    file_names_by_dimension = {
+        1: 'square-unfoldings.json',
+        2: 'cube-unfoldings.json',
+        3: 'hypercube-unfoldings.json'}
+
+    with pkg_resources.resource_stream(__name__, file_names_by_dimension[n]) as file:
         return dict(enumerate(json.load(file), 1))
 
 
@@ -163,30 +168,29 @@ def generate_matrix(unfolding, box):
     return matrix, [i for i, _ in transformed_unfoldings]
 
 
-def iter_box_sizes(num_cells, max_copies):
+def iter_box_sizes(n, num_cells, max_copies):
     """
-    Return box dimensions with volumes that are integer multiples of num_cells
-    and have a maximum volume of num_cells * max_copies.
+    Yield all dimensions of boxes with n dimensions and with volumes that are
+    integer multiples of num_cells and have a maximum volume of
+    num_cells * max_copies.
     """
     for num_copies in range(1, max_copies + 1):
-        for box in reversed(list(iter_factorizations(num_cells * num_copies, 3))):
+        for box in reversed(list(iter_factorizations(num_cells * num_copies, n))):
             yield box
 
 
-def solve_unfolding(id, max_copies):
-    unfolding = get_unfoldings()[id]
-
-    print(f'Trying to solve unfolding {id} ...')
+def solve_unfolding(unfolding, max_copies):
+    n = len(unfolding[0])
 
     # Try cube-ish box dimensions first, seems to make solutions likely to be
     # found early.
-    for box in sorted(iter_box_sizes(len(unfolding), max_copies), key=max):
+    for box in sorted(iter_box_sizes(n, len(unfolding), max_copies), key=max):
         matrix, transformed_unfoldings = generate_matrix(unfolding, box)
         solution = exact_cover.get_exact_cover(matrix)
 
         if len(solution):
             print('Solution:')
-            print(f'Unit cell dimensions: {box}')
+            print(f'Unit cell dimensions: {list(box)}')
 
             for i in solution:
                 print(json.dumps(transformed_unfoldings[i]))
@@ -196,10 +200,19 @@ def solve_unfolding(id, max_copies):
     print('No solution found. :(')
 
 
-def solve(id, max_copies):
-    if id is None:
-        for i in sorted(get_unfoldings()):
-            solve_unfolding(i, max_copies)
+def solve(n, id, max_copies):
+    unfoldings = get_unfoldings(n)
+
+    if id is not None:
+        unfoldings = {id: unfoldings[id]}
+
+    first = True
+
+    for id, unfolding in sorted(unfoldings.items()):
+        if first:
+            first = False
+        else:
             print()
-    else:
-        solve_unfolding(id, max_copies)
+
+        print(f'Trying to solve unfolding {id} ...')
+        solve_unfolding(unfolding, max_copies)
