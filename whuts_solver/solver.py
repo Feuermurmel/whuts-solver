@@ -181,17 +181,17 @@ def solve_unfolding(id, max_copies):
     # Try cube-ish box dimensions first, seems to make solutions likely to be
     # found early.
     for box in sorted(iter_box_sizes(len(unfolding), max_copies), key=max):
-            matrix, transformed_unfoldings = generate_matrix(unfolding, box)
-            solution = exact_cover.get_exact_cover(matrix)
+        matrix, transformed_unfoldings = generate_matrix(unfolding, box)
+        solution = exact_cover.get_exact_cover(matrix)
 
-            if len(solution):
-                print('Solution:')
-                print(f'Unit cell dimensions: {box}')
+        if len(solution):
+            print('Solution:')
+            print(f'Unit cell dimensions: {box}')
 
-                for i in solution:
-                    print(json.dumps(transformed_unfoldings[i]))
+            for i in solution:
+                print(json.dumps(transformed_unfoldings[i]))
 
-                return
+            return
 
     print('No solution found. :(')
 

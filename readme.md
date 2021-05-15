@@ -7,7 +7,7 @@ Create a virtualenv and install the _whuts-solver_ package from the local direct
 ```
 python3 -m venv venv
 . venv/bin/activate
-pip install -e whuts-solver
+pip install -e .
 ```
 
 
