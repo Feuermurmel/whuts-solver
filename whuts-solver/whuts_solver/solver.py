@@ -1,10 +1,7 @@
-import contextlib
 import functools
-import sys
-
-import itertools
 import json
 
+import itertools
 import pkg_resources
 import numpy as np
 import exact_cover
@@ -166,13 +163,24 @@ def generate_matrix(unfolding, box):
     return matrix, [i for i, _ in transformed_unfoldings]
 
 
+def iter_box_sizes(num_cells, max_copies):
+    """
+    Return box dimensions with volumes that are integer multiples of num_cells
+    and have a maximum volume of num_cells * max_copies.
+    """
+    for num_copies in range(1, max_copies + 1):
+        for box in reversed(list(iter_factorizations(num_cells * num_copies, 3))):
+            yield box
+
+
 def solve_unfolding(id, max_copies):
     unfolding = get_unfoldings()[id]
 
     print(f'Trying to solve unfolding {id} ...')
 
-    for num_copies in range(1, max_copies + 1):
-        for box in iter_factorizations(len(unfolding) * num_copies, 3):
+    # Try cube-ish box dimensions first, seems to make solutions likely to be
+    # found early.
+    for box in sorted(iter_box_sizes(len(unfolding), max_copies), key=max):
             matrix, transformed_unfoldings = generate_matrix(unfolding, box)
             solution = exact_cover.get_exact_cover(matrix)
 
