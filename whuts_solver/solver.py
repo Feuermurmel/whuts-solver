@@ -175,8 +175,7 @@ def iter_box_sizes(n, num_cells, max_copies):
     num_cells * max_copies.
     """
     for num_copies in range(1, max_copies + 1):
-        for box in reversed(list(iter_factorizations(num_cells * num_copies, n))):
-            yield box
+        yield from iter_factorizations(num_cells * num_copies, n)
 
 
 def solve_unfolding(unfolding, max_copies):
@@ -184,7 +183,11 @@ def solve_unfolding(unfolding, max_copies):
 
     # Try cube-ish box dimensions first, seems to make solutions likely to be
     # found early.
-    for box in sorted(iter_box_sizes(n, len(unfolding), max_copies), key=max):
+    boxes = sorted(
+        iter_box_sizes(n, len(unfolding), max_copies),
+        key=lambda x: sorted(x, reverse=True))
+
+    for box in boxes:
         matrix, transformed_unfoldings = generate_matrix(unfolding, box)
         solution = exact_cover.get_exact_cover(matrix)
 
